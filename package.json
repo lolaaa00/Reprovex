@@ -1,0 +1,19 @@
+{
+  "name": "reprovex-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GenLayer-native Intelligent Contract verification laboratory",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "cli:version": "genlayer --version",
+    "cli:network": "genlayer network info",
+    "contracts:deploy": "bash scripts/deploy-studionet.sh",
+    "contracts:lint": "bash scripts/lint-contracts.sh",
+    "test:python": "python -m pytest tests/unit -q",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "genlayer": "0.39.1"
+  }
+}

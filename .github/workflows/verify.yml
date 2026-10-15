@@ -1,0 +1,50 @@
+name: REPROVEX verification
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  code-and-contract:
+    runs-on: ubuntu-latest
+    env:
+      GENVM_VERSION: v0.2.12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest==8.4.2 genvm-linter genlayer-test==0.29.0
+      - run: python -m py_compile contracts/spec_registry.py contracts/verification_market.py runner/reprovex.py
+      - run: python -m pytest tests/unit -q
+      - name: GenVM safety lint
+        run: |
+          genvm-lint lint contracts/spec_registry.py --json
+          genvm-lint lint contracts/verification_market.py --json
+      - name: GenVM schema and semantic lint
+        run: |
+          genvm-lint download --version v0.2.12
+          genvm-lint check contracts/spec_registry.py --json
+          genvm-lint check contracts/verification_market.py --json
+          genvm-lint typecheck contracts/spec_registry.py --strict
+          genvm-lint typecheck contracts/verification_market.py --strict
+          genvm-lint schema contracts/spec_registry.py
+          genvm-lint schema contracts/verification_market.py
+      - name: Actual SDK Direct Mode (not mocks)
+        run: python -m pytest tests/direct -v
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Repository local CLI pin
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          test "$(node -p "require('./node_modules/genlayer/package.json').version")" = '0.39.1'
+      - name: Install web dependencies
+        run: npm --prefix frontend ci --no-audit --no-fund
+      - name: Frontend typecheck
+        run: npm --prefix frontend run typecheck
+      - name: Production build
+        run: npm --prefix frontend run build

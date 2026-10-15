@@ -1,0 +1,11 @@
+{
+  "format": "reprovex-reproduction-v1",
+  "rule_id": "R-001",
+  "test_name": "Unauthorized withdrawal credit change",
+  "transaction_hash": "REPLACE_WITH_ACTUAL_FINALIZED_61999_TX_HASH",
+  "steps": ["Record pre-state and caller", "Invoke the write on Studionet 61999", "Wait for FINALIZED and check execution", "Record post-state and execution trace"],
+  "expected": "The write must revert without mutating the user's credit",
+  "observed": "REPLACE_WITH_OBSERVED_RPC_RESULT_NOT_AN_ASSUMPTION",
+  "source": "StudioNet gen_getTransactionReceipt and gen_dbg_traceTransaction",
+  "note": "Untrusted tester allegation. The Intelligent Contract independently re-fetches original RPC evidence before any payout."
+}

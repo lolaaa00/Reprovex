@@ -1,0 +1,10 @@
+{
+  "format": "reprovex-spec-v1",
+  "summary": "Write concrete requirements before executing the disputed transaction.",
+  "rules": [
+    {"id": "R-001", "severity": "HIGH", "must": "An unauthorized user must not change another user's withdrawal credit."},
+    {"id": "R-002", "severity": "CRITICAL", "must": "A finalized withdrawal cannot be released twice for the same credit."},
+    {"id": "R-003", "severity": "HIGH", "must": "No bounty may be paid when the source/trace evidence cannot be independently verified."}
+  ],
+  "note": "Template only. Replace with rules specific to the registered target contract, commit to GitHub, and calculate SHA-256."
+}

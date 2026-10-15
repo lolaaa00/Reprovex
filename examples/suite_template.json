@@ -1,0 +1,8 @@
+{
+  "name": "REPLACE_WITH_REAL_SUITE_NAME",
+  "target": "REPLACE_WITH_FINALIZED_STUDIONET_CONTRACT_ADDRESS",
+  "source_url": "https://raw.githubusercontent.com/OWNER/REPO/COMMIT_SHA_40/source.py",
+  "source_sha256": "REPLACE_WITH_LOWERCASE_SHA256",
+  "spec_url": "https://raw.githubusercontent.com/OWNER/REPO/COMMIT_SHA_40/spec.json",
+  "spec_sha256": "REPLACE_WITH_LOWERCASE_SHA256"
+}
