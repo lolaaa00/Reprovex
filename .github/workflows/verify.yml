@@ -25,8 +25,7 @@ jobs:
           genvm-lint download --version v0.2.12
           genvm-lint check contracts/spec_registry.py --json
           genvm-lint check contracts/verification_market.py --json
-          genvm-lint typecheck contracts/spec_registry.py --strict
-          genvm-lint typecheck contracts/verification_market.py --strict
+          scripts/strict-typecheck.sh contracts/spec_registry.py contracts/verification_market.py
           genvm-lint schema contracts/spec_registry.py
           genvm-lint schema contracts/verification_market.py
       - name: Actual SDK Direct Mode (not mocks)

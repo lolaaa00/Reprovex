@@ -13,6 +13,6 @@ for contract in contracts/spec_registry.py contracts/verification_market.py; do
   genvm-lint lint "$contract" --json
   genvm-lint check "$contract" --json
   genvm-lint validate "$contract" --json
-  genvm-lint typecheck "$contract" --strict
+  scripts/strict-typecheck.sh "$contract"
   genvm-lint schema "$contract"
 done
