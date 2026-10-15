@@ -4,8 +4,8 @@ import { validAddress,validPinned,validSha,validTx } from '../../../lib/chain';
 export const runtime='nodejs';
 const RPC='https://studio.genlayer.com/api';
 function digest(x:Uint8Array){return createHash('sha256').update(x).digest('hex')}
-async function rpc(method:string,params:Record<string,unknown>){
-  const response=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,id:1,params:[params]}),cache:'no-store',signal:AbortSignal.timeout(22000)});
+async function rpc(method:string,params:unknown[]){
+  const response=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,id:1,params}),cache:'no-store',signal:AbortSignal.timeout(22000)});
   if (!response.ok)throw new Error(`${method} failed with HTTP ${response.status}`);
   const doc=await response.json();if(doc.error||doc.result===undefined)throw new Error(`${method}: ${JSON.stringify(doc.error||'result missing').slice(0,160)}`);
   return doc.result;
@@ -20,26 +20,22 @@ export async function POST(request:NextRequest){
     const body=await request.json();
     const {target,txHash,sourceUrl,sourceSha256}=body;
     if(!validAddress(target)||!validTx(txHash)||!validPinned(sourceUrl)||!validSha(sourceSha256))return NextResponse.json({error:'Invalid pinned suite or transaction values'},{status:400});
-    const [source,code,receipt,trace]=await Promise.all([
-      pinned(sourceUrl),rpc('gen_getContractCode',{address:target,status:'finalized'}),
-      rpc('gen_getTransactionReceipt',{txId:txHash}),rpc('gen_dbg_traceTransaction',{txID:txHash,round:0})]);
+    const [source,code,receipt]=await Promise.all([
+      pinned(sourceUrl),rpc('gen_getContractCode',[target]),
+      rpc('eth_getTransactionByHash',[txHash])]);
     if(typeof code!=='string')throw new Error('Deployed code unavailable');
     const actual=new Uint8Array(Buffer.from(code,'base64'));
     const observations={
       chainId:61999,sourcePinned:digest(source)===sourceSha256,
       deployedMatchesPinned:digest(actual)===digest(source),
       deployedSourceSha256:digest(actual),sourceSha256:digest(source),
-      finalized:String(receipt?.statusName||'').toUpperCase()==='FINALIZED',
-      receiptTargetMatches:String(receipt?.recipient||'').toLowerCase()===target.toLowerCase(),
-      receiptHashMatches:String(receipt?.id||'').toLowerCase()===txHash.toLowerCase(),
-      traceHashMatches:String(trace?.transaction_id||'').toLowerCase()===txHash.toLowerCase(),
-      traceResultCode:trace?.result_code,
-      returnData:String(trace?.return_data||'').slice(0,1800),
-      stderr:String(trace?.stderr||'').slice(0,1800),
-      stdout:String(trace?.stdout||'').slice(0,1800),
-      genvmLog:JSON.stringify(trace?.genvm_log||[]).slice(0,5000)
+      finalized:String(receipt?.status||'').toUpperCase()==='FINALIZED',
+      receiptTargetMatches:String(receipt?.to_address||'').toLowerCase()===target.toLowerCase(),
+      receiptHashMatches:String(receipt?.hash||'').toLowerCase()===txHash.toLowerCase(),
+      consensusAgreed:Number(receipt?.result)===6,
+      execution:JSON.stringify(receipt?.consensus_data?.leader_receipt?.[0]||{}).slice(0,10000)
     };
-    const base=observations.sourcePinned&&observations.deployedMatchesPinned&&observations.finalized&&observations.receiptTargetMatches&&observations.receiptHashMatches&&observations.traceHashMatches&&[0,1,2].includes(observations.traceResultCode);
+    const base=observations.sourcePinned&&observations.deployedMatchesPinned&&observations.finalized&&observations.receiptTargetMatches&&observations.receiptHashMatches&&observations.consensusAgreed;
     return NextResponse.json({status:base?'READY_FOR_SEMANTIC_REVIEW':'EVIDENCE_BLOCKED',observations,
       note:'This check verifies provenance and finality. It is NOT a GenLayer consensus verdict, bug confirmation or bounty authorization.'});
   }catch(e:any){return NextResponse.json({error:`Evidence verification unavailable: ${String(e?.message||e)}`},{status:503})}

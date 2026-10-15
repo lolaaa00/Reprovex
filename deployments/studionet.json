@@ -1,0 +1,15 @@
+{
+  "network": "studionet",
+  "chain_id": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "deployer": "0x778D1663f9D5b338aBaD5C62899830AD3520a32F",
+  "spec_registry": {
+    "address": "0xD63EfC16f02414bFD172F86cb4ac4600a58A128a",
+    "transaction_hash": "0x6fb63aaa8b8ca653a4010aef122f2c666a3fb3652f7f43335da55c028c3a3137"
+  },
+  "verification_market": {
+    "address": "0x1fb59Aa2a927f3A373E70Ef294f9c3BE0a9aF6C1",
+    "transaction_hash": "0x849a988bdffe8aad003b2a4542ac80d665c6b87e93b96d7a62b13bc540fb0819",
+    "registry_address": "0xD63EfC16f02414bFD172F86cb4ac4600a58A128a"
+  }
+}

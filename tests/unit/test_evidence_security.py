@@ -24,8 +24,8 @@ def fixture_evidence(env,monkeypatch,model=None):
     monkeypatch.setattr(m,'_immutable_evidence',fetch)
     def fake_rpc(method,args):
         if method=='gen_getContractCode':return base64.b64encode(SOURCE.encode()).decode()
-        if method=='gen_getTransactionReceipt':return {'id':TX,'recipient':TARGET,'statusName':'Finalized','txExecutionHash':'0x'+'a'*64,'txOrigin':TESTER}
-        if method=='gen_dbg_traceTransaction':return {'transaction_id':TX,'result_code':0,'return_data':'0x22','stdout':'Permission granted','stderr':'','genvm_log':[],'eq_outputs':[]}
+        if method=='eth_getTransactionByHash':return {'hash':TX,'to_address':TARGET,'status':'FINALIZED','result':6,
+            'origin_address':TESTER,'consensus_data':{'leader_receipt':[{'result':'0x22','stdout':'Permission granted','stderr':'','eq_outputs':[]}]}}
         raise AssertionError(method)
     monkeypatch.setattr(m,'_json_rpc',fake_rpc)
     value=model or {'verdict':'CONFIRMED','severity':'HIGH','failure_class':'AUTHORITY','violated_rule':'RULE1','explanation':'Unauthorized method succeeded'}
@@ -47,24 +47,24 @@ def test_unfinalized_receipt_not_paid(env,monkeypatch):
     suite,case,_,rpc=fixture_evidence(env,monkeypatch)
     def altered(method,args):
         result=rpc(method,args)
-        if method=='gen_getTransactionReceipt': result=dict(result,statusName='Accepted')
+        if method=='eth_getTransactionByHash': result=dict(result,status='ACCEPTED')
         return result
     monkeypatch.setattr(env.mod,'_json_rpc',altered)
     assert not env.mod.evidence_assessment(suite,case)['evidence_valid']
 
 def test_receipt_target_mismatch_rejected(env,monkeypatch):
     suite,case,_,rpc=fixture_evidence(env,monkeypatch)
-    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),recipient='0x'+'2'*40) if method=='gen_getTransactionReceipt' else rpc(method,args))
+    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),to_address='0x'+'2'*40) if method=='eth_getTransactionByHash' else rpc(method,args))
     assert env.mod.evidence_assessment(suite,case)['verdict']=='INCONCLUSIVE'
 
-def test_trace_wrong_tx_rejected(env,monkeypatch):
+def test_receipt_wrong_tx_rejected(env,monkeypatch):
     suite,case,_,rpc=fixture_evidence(env,monkeypatch)
-    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),transaction_id='0x'+'4'*64) if method=='gen_dbg_traceTransaction' else rpc(method,args))
+    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),hash='0x'+'4'*64) if method=='eth_getTransactionByHash' else rpc(method,args))
     assert env.mod.evidence_assessment(suite,case)['verdict']=='INCONCLUSIVE'
 
-def test_unknown_trace_result_rejected(env,monkeypatch):
+def test_non_agree_consensus_result_rejected(env,monkeypatch):
     suite,case,_,rpc=fixture_evidence(env,monkeypatch)
-    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),result_code=99) if method=='gen_dbg_traceTransaction' else rpc(method,args))
+    monkeypatch.setattr(env.mod,'_json_rpc',lambda method,args:dict(rpc(method,args),result=99) if method=='eth_getTransactionByHash' else rpc(method,args))
     assert env.mod.evidence_assessment(suite,case)['verdict']=='INCONCLUSIVE'
 
 def test_evidence_hash_failure_returns_inconclusive(env,monkeypatch):

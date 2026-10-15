@@ -17,7 +17,7 @@ REPROVEX provides an independent record of contract specifications, source-pinne
 | Wallet | Injected EIP-1193 provider; no WalletConnect, Privy or Snaps |
 | Application | Next.js 15 App Router, React 19, TypeScript |
 
-**No contract addresses, deployment tx IDs or production URLs are asserted here.** Those are external facts that require genuine deployment and verification. This workspace is configured for the stable Studionet only; it does not silently use the 61997 release candidate.
+The canonical Studionet deployment is recorded in `deployments/studionet.json`. This workspace targets stable Studionet only; it does not silently use the 61997 release candidate.
 
 ## Product map
 
@@ -121,4 +121,4 @@ When deploying the Next.js application to Vercel, set `NEXT_PUBLIC_REGISTRY_ADDR
 
 ## Scope statement
 
-REPROVEX includes no fabricated deployment, false test results, simulated production contract integration, or handover document. Test manifests are templates, and the lab's ten scenarios are test *plans* until executed. Run the checks, deployments, real economic lifecycle, and hosted browser validation before representing this project as fully verified on Studionet.
+REPROVEX includes no fabricated results or simulated production contract integration. The two contracts recorded in `deployments/studionet.json` were deployed through real Studionet consensus and checked for exact source parity. Test manifests remain templates, and the lab's ten scenarios are test *plans* until executed. Run a real economic lifecycle and hosted browser validation before representing the complete bounty lifecycle as verified.
