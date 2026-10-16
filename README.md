@@ -16,6 +16,7 @@ REPROVEX provides an independent record of contract specifications, source-pinne
 | TypeScript client | `genlayer-js@1.1.8` |
 | Wallet | Injected EIP-1193 provider; no WalletConnect, Privy or Snaps |
 | Application | Next.js 15 App Router, React 19, TypeScript |
+| Production frontend | **https://reprovex.vercel.app** |
 
 The canonical Studionet deployment is recorded in `deployments/studionet.json`. This workspace targets stable Studionet only; it does not silently use the 61997 release candidate.
 

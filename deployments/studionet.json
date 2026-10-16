@@ -2,6 +2,7 @@
   "network": "studionet",
   "chain_id": 61999,
   "rpc": "https://studio.genlayer.com/api",
+  "frontend_url": "https://reprovex.vercel.app",
   "deployer": "0x778D1663f9D5b338aBaD5C62899830AD3520a32F",
   "spec_registry": {
     "address": "0xD63EfC16f02414bFD172F86cb4ac4600a58A128a",
